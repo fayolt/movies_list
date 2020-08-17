@@ -1,6 +1,8 @@
 import time
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
+from .api import get_data
+
 HOSTNAME = '0.0.0.0'
 PORT_NUMBER = 8000
 
@@ -9,7 +11,7 @@ class Handler(BaseHTTPRequestHandler):
         """Respond to a GET request."""
         data = ""
         if self.path == "/movies":
-            data = "found!!!"
+            data = str(len(get_data("/people")))
             self.send_response(200)
         else:
             data = "Not Found"
