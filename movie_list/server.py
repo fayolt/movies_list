@@ -1,7 +1,8 @@
 import time
+import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-from .api import get_data
+from .service import films
 
 HOSTNAME = '0.0.0.0'
 PORT_NUMBER = 8000
@@ -11,7 +12,9 @@ class Handler(BaseHTTPRequestHandler):
         """Respond to a GET request."""
         data = ""
         if self.path == "/movies":
-            data = str(len(get_data("/people")))
+            m_list = films()
+            print(m_list)
+            data = json.dumps(m_list)
             self.send_response(200)
         else:
             data = "Not Found"
