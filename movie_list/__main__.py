@@ -1,3 +1,3 @@
-from .server import start_server
+from .app import run
 if __name__ == '__main__':
-    start_server()
+    run()
