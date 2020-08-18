@@ -10,5 +10,5 @@ class ServiceExit(Exception):
 
 
 def service_shutdown(signum, frame):
-    print(time.asctime(), 'Caught signal %d %s' % (signum))
+    print(time.asctime(), 'Caught signal %d' % (signum))
     raise ServiceExit

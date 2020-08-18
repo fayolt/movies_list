@@ -1,17 +1,17 @@
 import signal
 import time
 
-from timeloop import Timeloop
 from datetime import timedelta
 from http.server import HTTPServer
 
 from .cache_refresher import CacheRefresher
 from .server import Handler
-from .service import cache_films
+from .service import cache_films, refresh
 from .service_exit import ServiceExit, service_shutdown
 
 HOSTNAME = '0.0.0.0'
 PORT_NUMBER = 8000
+WAIT_TIME_SECONDS = 60
 
 
 def run():
@@ -25,7 +25,9 @@ def run():
     if cached_films is not None:
         print(time.asctime(), "Cache Warmup Succeeded")
         # Create new thread
-        refresher_thread = CacheRefresher("CacheRefresherThread")
+        refresher_thread = CacheRefresher(
+            "CacheRefresherThread", timedelta(seconds=WAIT_TIME_SECONDS),
+            refresh)
         # Start new Thread
         refresher_thread.start()
         while refresher_thread.is_alive():
@@ -38,9 +40,7 @@ def run():
                 httpd.serve_forever()
             except ServiceExit:
                 # Terminate the thread.
-                # Set the shutdown flag on thread to trigger a clean shutdown.
-                refresher_thread.shutdown_flag.set()
-                refresher_thread.join()
+                refresher_thread.stop()
                 httpd.server_close()
                 print(time.asctime(), "Server Stops - %s:%s" % (HOSTNAME,
                       PORT_NUMBER))

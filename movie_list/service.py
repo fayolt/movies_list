@@ -1,3 +1,4 @@
+import time
 from collections import defaultdict
 
 from .api import get_data
@@ -36,6 +37,10 @@ def cache_films():
         cache.set_cache(cached_films)
     return cached_films
 
+
+def refresh():
+    cache_films()
+    print(time.asctime(), "Cache Refreshed")
 # def cached_films():
 #     cached_films = read_cache(films)
 #     return cached_films
