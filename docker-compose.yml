@@ -1,0 +1,15 @@
+version: '3.2'
+services:
+  cache:
+    image: memcached
+    command: memcached -m 256
+
+  backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - cache
+    tty: true
