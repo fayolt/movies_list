@@ -3,8 +3,6 @@ import signal
 import threading
 import time
 
-from .service import cache_films
-
 
 lock = threading.Lock()
 

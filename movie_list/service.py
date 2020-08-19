@@ -1,8 +1,10 @@
+import ast
+import json
 import time
 from collections import defaultdict
 
 from .api import get_data
-from .cache import Cache
+from .cache import client
 
 
 def movie_people():
@@ -13,34 +15,29 @@ def movie_people():
             for film in person.get("films"):
                 film_id = film.split("/")[-1]
                 movie_people[film_id].append(person.get("name"))
+        movie_people = dict(movie_people)
+        client.set("movie-people", movie_people, expire=3600)
     return movie_people
 
 
 def films():
     films = get_data("/films")
     if films is not None:
-        people = movie_people()
+        people = client.get("movie-people")
+        if people is None:
+            people = movie_people()
+        else:
+            people = ast.literal_eval(people.decode("utf-8"))
         for film in films:
-            film["people"] = people[film.get("id")]
+            film["people"] = people.get(film.get("id"), [])
+        client.set("movies", films, expire=60)
     return films
 
 
 def read_cache():
-    return Cache.get_instance().get_cache()
-
-
-# Set cache here
-def cache_films():
-    cached_films = films()
-    if cached_films is not None:
-        cache = Cache.get_instance()
-        cache.set_cache(cached_films)
-    return cached_films
+    return client.get('movies').decode("utf-8")
 
 
 def refresh():
-    cache_films()
+    films()
     print(time.asctime(), "Cache Refreshed")
-# def cached_films():
-#     cached_films = read_cache(films)
-#     return cached_films

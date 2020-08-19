@@ -6,7 +6,7 @@ from http.server import HTTPServer
 
 from .cache_refresher import CacheRefresher
 from .server import Handler
-from .service import cache_films, refresh
+from .service import films, refresh
 from .service_exit import ServiceExit, service_shutdown
 
 HOSTNAME = '0.0.0.0'
@@ -21,7 +21,7 @@ def run():
     signal.signal(signal.SIGINT, service_shutdown)
     # Warm up cache here
     # Ensure that the distant api is up and running
-    cached_films = cache_films()
+    cached_films = films()
     if cached_films is not None:
         print(time.asctime(), "Cache Warmup Succeeded")
         # Create new thread

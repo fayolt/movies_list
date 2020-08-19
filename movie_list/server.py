@@ -10,7 +10,7 @@ class Handler(BaseHTTPRequestHandler):
         data = ""
         if self.path == "/movies":
             m_list = read_cache()
-            data = json.dumps(m_list)
+            data = m_list
             self.send_response(200)
         else:
             data = "Not Found"
