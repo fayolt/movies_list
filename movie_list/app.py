@@ -15,7 +15,7 @@ WAIT_TIME_SECONDS = 60
 
 
 def run():
-    print(time.asctime(), "Starting Now ...")
+    print(f'{time.asctime()} - Starting Now ...')
     # Register the signal handlers
     signal.signal(signal.SIGTERM, service_shutdown)
     signal.signal(signal.SIGINT, service_shutdown)
@@ -23,27 +23,33 @@ def run():
     # Ensure that the distant api is up and running
     cached_films = films()
     if cached_films is not None:
-        print(time.asctime(), "Cache Warmup Succeeded")
+        print(f'{time.asctime()} - Cache Warmup Succeeded')
         # Create new thread
         refresher_thread = CacheRefresher(
-            "CacheRefresherThread", timedelta(seconds=WAIT_TIME_SECONDS),
+            "CacheRefresher", timedelta(seconds=WAIT_TIME_SECONDS),
             refresh)
         # Start new Thread
         refresher_thread.start()
         while refresher_thread.is_alive():
             try:
                 refresher_thread.join(1)
-                # Start server
+                # Start web server
                 httpd = HTTPServer((HOSTNAME, PORT_NUMBER), Handler)
-                print(time.asctime(), "Server Starts - %s:%s" % (HOSTNAME,
-                      PORT_NUMBER))
+                message = (
+                    f'{time.asctime()} - Server Starts - '
+                    f'{HOSTNAME}:{PORT_NUMBER}'
+                )
+                print(message)
                 httpd.serve_forever()
             except ServiceExit:
                 # Terminate the thread.
                 refresher_thread.stop()
                 httpd.server_close()
-                print(time.asctime(), "Server Stops - %s:%s" % (HOSTNAME,
-                      PORT_NUMBER))
+                message = (
+                    f'{time.asctime()} - Server Stops - '
+                    f'{HOSTNAME}:{PORT_NUMBER}'
+                )
+                print(message)
     else:
-        print(time.asctime(), "Cache Warmup Failed")
-        print(time.asctime(), "Exiting Now ...")
+        print(f'{time.asctime()} - Cache Warmup Failed')
+        print(f'{time.asctime()} - Exiting Now ...')

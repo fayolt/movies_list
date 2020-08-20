@@ -1,10 +1,28 @@
 import ast
 import json
 import time
+import requests
+
+
 from collections import defaultdict
 
-from .api import get_data
 from .cache import client
+
+BASE_URL = 'https://ghibliapi.herokuapp.com'
+
+
+def get_data(path):
+    try:
+        response = requests.get(BASE_URL + path,  timeout=5)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as http_err:
+        print(f'HTTP error occurred: {http_err}')
+        return None
+    except requests.exceptions.Timeout as timeout_err:
+        print(f'Timeout error occurred: {timeout_err}')
+        return None
+    else:
+        return response.json()
 
 
 def movie_people():
@@ -30,14 +48,14 @@ def films():
             people = ast.literal_eval(people.decode("utf-8"))
         for film in films:
             film["people"] = people.get(film.get("id"), [])
-        client.set("movies", films, expire=60)
+        client.set("movies", films)
     return films
-
-
-def read_cache():
-    return ast.literal_eval(client.get('movies').decode("utf-8"))
 
 
 def refresh():
     films()
-    print(time.asctime(), "Cache Refreshed")
+    print(f'{time.asctime()} - Cache Refreshed')
+
+
+def read_cache():
+    return ast.literal_eval(client.get('movies').decode("utf-8"))
