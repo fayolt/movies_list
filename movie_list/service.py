@@ -33,7 +33,8 @@ def movie_people():
             for film in person.get("films"):
                 film_id = film.split("/")[-1]
                 movie_people[film_id].append(person.get("name"))
-        movie_people = dict(movie_people)
+    movie_people = dict(movie_people)
+    if movie_people:
         client.set("movie-people", movie_people, expire=3600)
     return movie_people
 
@@ -58,4 +59,7 @@ def refresh():
 
 
 def read_cache():
-    return ast.literal_eval(client.get('movies').decode("utf-8"))
+    movies = client.get('movies')
+    if movies is not None:
+        return ast.literal_eval(movies.decode("utf-8"))
+    return None

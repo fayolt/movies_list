@@ -14,7 +14,11 @@ class Handler(BaseHTTPRequestHandler):
         """Respond to a GET request."""
         data = ""
         if self.path == "/movies":
-            data = render('movies.html', read_cache())
+            movies = read_cache()
+            if movies is None:
+                data = "Something went wrong!!!"
+            else:
+                data = render('movies.html', movies)
             self.send_response(200)
         elif self.path.endswith(".css"):
             filename = STATIC_DIR + self.path
