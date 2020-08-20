@@ -2,17 +2,20 @@
 
 ## Prerequisite to run the application
 
-* Docker
+* Docker & Docker Compose
 
 ## To start the apps 
 
-* Build the docker image
+* Build the docker images
 
 ```sh
-docker build -t movie-list .
+docker-compose build
 ```
+
 * Start the application 
 
 ```sh
-docker run -it -p 8000:8000 --rm movie-list
+docker-compose up 
 ```
+
+Now the app is available at [`localhost:8000`](http://localhost:8000)
