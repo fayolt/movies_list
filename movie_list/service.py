@@ -35,7 +35,7 @@ def films():
 
 
 def read_cache():
-    return client.get('movies').decode("utf-8")
+    return ast.literal_eval(client.get('movies').decode("utf-8"))
 
 
 def refresh():
