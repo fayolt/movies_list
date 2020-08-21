@@ -1,3 +1,4 @@
+import logging
 import ast
 import json
 import time
@@ -10,16 +11,22 @@ from .cache import client
 
 BASE_URL = 'https://ghibliapi.herokuapp.com'
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+logger = logging.getLogger(__name__)
+
 
 def get_data(path):
     try:
         response = requests.get(BASE_URL + path,  timeout=5)
         response.raise_for_status()
     except requests.exceptions.HTTPError as http_err:
-        print(f'HTTP error occurred: {http_err}')
+        logger.error(f'HTTP error occurred: {http_err}')
         return None
     except requests.exceptions.Timeout as timeout_err:
-        print(f'Timeout error occurred: {timeout_err}')
+        logger.error(f'Timeout error occurred: {timeout_err}')
         return None
     else:
         return response.json()
@@ -55,7 +62,7 @@ def films():
 
 def refresh():
     films()
-    print(f'{time.asctime()} - Cache Refreshed')
+    logger.info('Cache Refreshed')
 
 
 def read_cache():

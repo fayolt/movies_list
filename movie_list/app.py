@@ -1,3 +1,4 @@
+import logging
 import signal
 import time
 
@@ -13,9 +14,15 @@ HOSTNAME = '0.0.0.0'
 PORT_NUMBER = 8000
 WAIT_TIME_SECONDS = 60
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+logger = logging.getLogger(__name__)
+
 
 def run():
-    print(f'{time.asctime()} - Starting Now ...')
+    logger.info('Starting Now ...')
     # Register the signal handlers
     signal.signal(signal.SIGTERM, service_shutdown)
     signal.signal(signal.SIGINT, service_shutdown)
@@ -23,7 +30,7 @@ def run():
     # Ensure that the distant api is up and running
     cached_films = films()
     if cached_films is not None:
-        print(f'{time.asctime()} - Cache Warmup Succeeded')
+        logger.info('Cache Warmup Succeeded')
         # Create new thread
         refresher_thread = CacheRefresher(
             "CacheRefresher", timedelta(seconds=WAIT_TIME_SECONDS),
@@ -35,21 +42,13 @@ def run():
                 refresher_thread.join(1)
                 # Start web server
                 httpd = HTTPServer((HOSTNAME, PORT_NUMBER), Handler)
-                message = (
-                    f'{time.asctime()} - Server Starts - '
-                    f'{HOSTNAME}:{PORT_NUMBER}'
-                )
-                print(message)
+                logger.info(f'Server Starting {HOSTNAME}:{PORT_NUMBER}')
                 httpd.serve_forever()
             except ServiceExit:
                 # Terminate the thread.
                 refresher_thread.stop()
                 httpd.server_close()
-                message = (
-                    f'{time.asctime()} - Server Stops - '
-                    f'{HOSTNAME}:{PORT_NUMBER}'
-                )
-                print(message)
+                logger.info(f'Server Stopping {HOSTNAME}:{PORT_NUMBER}')
     else:
-        print(f'{time.asctime()} - Cache Warmup Failed')
-        print(f'{time.asctime()} - Exiting Now ...')
+        logger.critical('Cache Warmup Failed')
+        logger.critical('Exiting Now ...')
