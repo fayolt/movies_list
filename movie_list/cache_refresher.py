@@ -19,12 +19,8 @@ class CacheRefresher (threading.Thread):
     def run(self):
         print(f'{time.asctime()} - Starting {self.name} Thread')
         while not self.shutdown_flag.wait(self.interval.total_seconds()):
-            # Get lock to synchronize threads
-            lock.acquire()
-            # Update cache here
-            self.execute()
-            # Free lock to release next thread
-            lock.release()
+            with lock:
+                self.execute()
 
     def stop(self):
         print(f'{time.asctime()} - Stopping {self.name} Thread')

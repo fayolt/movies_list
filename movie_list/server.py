@@ -16,21 +16,21 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/movies":
             movies = read_cache()
             if movies is None:
-                data = "Something went wrong!!!"
+                data = render(STATIC_DIR, 'error.html',
+                              message="UH OH! Something went wrong", code=500)
+                self.send_response(500)
             else:
-                data = render('movies.html', movies)
-            self.send_response(200)
+                data = render(STATIC_DIR, 'movies.html', films=movies)
+                self.send_response(200)
         elif self.path.endswith(".css"):
             filename = STATIC_DIR + self.path
-            with open(filename, 'rb') as static_file:
-                data = static_file.read()
+            with open(filename) as static_file:
+                data = ''.join(static_file.readlines())
             self.send_response(200)
             self.send_header('Content-type', 'text/css')
         else:
-            data = "Not Found"
-            self.send_error(404)
+            data = render(STATIC_DIR, 'error.html',
+                          message="UH OH! You're lost", code=404)
+            self.send_response(404)
         self.end_headers()
-        if type(data) == str:
-            self.wfile.write(bytes(data, "utf-8"))
-        else:
-            self.wfile.write(data)
+        self.wfile.write(data.encode('utf-8'))
