@@ -68,5 +68,5 @@ def refresh():
 def read_cache():
     movies = client.get('movies')
     if movies is not None:
-        return ast.literal_eval(movies.decode("utf-8"))
-    return None
+        movies = ast.literal_eval(movies.decode("utf-8"))
+    return movies

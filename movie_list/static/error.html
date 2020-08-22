@@ -9,7 +9,9 @@
     <div class="col-md-offset-5 col-sm-offset-5">
       <h1>{{ code }}</h1>
       <h2>{{ message }}</h2>
-      <a href="/movies" class="link">Go back to happiness</a>
+      {% if code == 404 %}
+        <a href="/movies" class="link">Go back to happiness</a>
+      {% endif %}
     </div>
   </div>
 {% endblock %}
