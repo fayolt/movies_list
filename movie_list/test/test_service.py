@@ -2,7 +2,6 @@ import json
 import requests
 
 from unittest import TestCase, mock
-from collections import defaultdict
 
 from movie_list import service
 
@@ -19,17 +18,18 @@ class TestService(TestCase):
             "release_date": "1986",
             "rt_score": "95"
         }]
-        mock_get.return_value = mock.Mock(ok=True)
+        mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = data
         response = service.get_data("/path")
         mock_get.assert_called_once
         self.assertListEqual(response, data)
 
-    @mock.patch('movie_list.service.requests.get')
+    @mock.patch('movie_list.service.requests.get',
+                side_effect=requests.exceptions.HTTPError())
     def test_get_data_when_response_is_not_ok(self, mock_get):
-        mock_get.return_value.ok = False
         response = service.get_data("/path")
         self.assertRaises(requests.exceptions.HTTPError)
+        self.assertIs(response, None)
 
     @mock.patch('movie_list.service.requests.get',
                 side_effect=requests.exceptions.Timeout())
@@ -216,3 +216,13 @@ class TestService(TestCase):
     def test_read_cache_hit(self, mock_client_get):
         response = service.read_cache()
         self.assertEqual(response, {'data': True})
+
+    @mock.patch('movie_list.service.films')
+    def test_refresh(self, mock_films):
+        with self.assertLogs() as cm:
+            service.refresh()
+        self.assertEqual(
+            cm.output,
+            ['INFO:movie_list.service:Cache Refreshed']
+        )
+        mock_films.assert_called_once

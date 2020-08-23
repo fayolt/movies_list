@@ -22,5 +22,10 @@ class TestServer(TestCase):
         self.assertEqual(response.status_code, 404)
         response = requests.get("http://127.0.0.1:8001/movies")
         self.assertEqual(response.status_code, 500)
+        mock_read_cache.return_value = []
+        response = requests.get("http://127.0.0.1:8001/movies")
+        self.assertEqual(response.status_code, 200)
+        response = requests.get("http://127.0.0.1:8001/test.css")
+        self.assertEqual(response.status_code, 200)
         httpd.shutdown()
         httpd.server_close()
