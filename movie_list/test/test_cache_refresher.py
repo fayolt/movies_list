@@ -16,10 +16,11 @@ class TestCacheRefresher(TestCase):
             service.refresh)
         with self.assertLogs('movie_list.cache_refresher', level='INFO') as cm:
             refresher.start()
+            time.sleep(2)
             refresher.shutdown_flag.set()
             refresher.join()
         self.assertEqual(
             cm.output,
             ['INFO:movie_list.cache_refresher:Starting Refresher Thread']
         )
-        mock_refresh.assert_called_once
+        self.assertEqual(mock_refresh.call_count, 2)
